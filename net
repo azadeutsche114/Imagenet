@@ -1,0 +1,115 @@
+import numpy as np 
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras.layers import Dense, Activation
+from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.metrics import categorical_crossentropy
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing import image
+from tensorflow.keras.models import Model
+from tensorflow.keras.applications import imagenet_utils
+from sklearn.metrics import confusion_matrix
+import itertools
+import os
+import shutil
+import random
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+mobile = tf.keras.applications.mobilenet.MobileNet()
+
+def prepare_image(file):
+    img_path                = 'data/MobileNet-samples/'
+    img                     = image.load_img(img_path+file, target_size=(224, 224))
+    img_array               = image_img_to_array(img)
+    img_array_expanded_dims = np.expand_dims(img_array, axis=0) # The Dim keyword is used to specify their type or size (for arrays)
+    return tf.keras.applications.mobilnet.preprocess_input(imp_array_expanded_dims) 
+    
+    from IPython.display import Image
+Image(filename='data/MobilNet-samples/1.PNG', width=300, height=200)
+
+preprocessed_image = prepare_image('1.PNG')
+predictions        = mobile.predict(preprocessed_image)
+results            = imagenet_utils.decode_predictions(predictions)
+results
+
+assert results[0][0][1]=='American_chameleon'
+
+Image(filename='data/MobileNet-samples/2.PNG', width=300, height=200)
+
+preprocessed_image = prepare_image('2.PNG')
+predictions        = mobile.predict(preprocessed_image)
+results            = imagenet_utils.decode_predictions(predictions)
+results
+
+Image(filename='data/MobileNet-samples/3.PNG', width=300, height=200)
+
+preprocessed_image = prepare_image('3.PNG')
+predictions        = mobile.predict(preprocessed_image)
+results            = imagenet_utils.decode_predictions(predictions)
+results
+
+
+assert results[0][0][1] == 'strawberry'
+
+
+# Fine tunning of datasets using MobilNet
+
+# Organize data into train, valid, test dirs
+os.chdir('data/Sign-language-Digits-Dataset') # os is used to access files from folders
+if os.path.isdir('train/0/') is False:
+    os.mkdir('train')
+    os.mkdir('valid')
+    os.mkdir('test')
+    
+    for i in range(0, 10):
+        shutil.move(f'{i}', 'train')
+        os.mkdir(f'valid/{i}')
+        os.mkdir(f'test/{i}')
+        
+        valid_samples = random.sample(os.listdir(f'train/{i}'), 30)
+        for j in valid_samples:
+            shutil.move((f'train/{i}/{j}', (f'valid/{i}')
+                         
+        test_samples = random.sample(os.listdir(f'train/{i}'), 5)
+        for k in test_samples:
+            shutil.move(f'train/{i}/{k}', f'test/{i}')
+os.chdir('../..')
+
+train_path = 'data/sign-Language-Digits-Dataset/train'
+valid_path = 'data/sign-Language-Digits-Dataset/valid'
+test_path  = 'data/sign-Language-Digits-Dataset/test'
+
+train_batches = ImageDataGenerator(preprocessing_function=tf.keras.applications.mobilenet.preprocess_input)/
+    .flow_from_directory(director=train_path, target_size=(224,224), batch_size=10)
+valid_batches = ImageDataGenerator(preprocessing_function=tf.keras.applications.vgg16.preprocess_input)/
+    .flow_from_directory(director=valid_path, target_size=(224,224), batch_size=10)
+test_batches  = ImageDataGenerator(preprocessing_function=tf.keras.applications.vgg16.preprocess_input)/
+    .flow_from_directory(director=test_path, target_size=(224,224) batch_size=10, shuffle=False)
+    
+    
+assert train_batches.n == 1712
+assert valid.batches.n == 300
+assert test_batches.n  == 50
+
+mobile = tf.keras.applications.mobilnet.MobileNet()
+
+mobile.summary()
+
+params = count_params(mobile)
+assert params['non_trainable_params'] ==  218888
+assert params['trainable_params']     == 4231976
+
+x = mobile.layers[-6].output
+output = Dense(units=10, activation = 'softmax')(x)
+
+model = Model(inputs=mobile.input, outputs=output)
+
+for layer in model.layers[:-23]
+    layer.trainable = False
+    
+model.summary()
+
+params = count_params(mobile)
+assert params['non_trainable_params'] == 1365184
+assert params['trainable_params']     == 1873930
